@@ -1,2 +1,5 @@
 # Ignore node_modules directory
 node_modules/
+
+# Local AWS resource configuration
+.env.local
