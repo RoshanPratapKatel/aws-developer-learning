@@ -52,3 +52,67 @@ or application. Usually needed once per account and region. The default
 CloudFormation execution role has administrator permissions.
 
 If access is denied, check both the user's policies and permissions boundary.
+
+## Create the practice tables
+
+From the repository root, run:
+
+```bash
+bash scripts/setup/create-tables.sh
+```
+
+Creates the five shared DynamoDB tables in `us-east-1` and waits until they are
+ready. Run once: existing tables cause the script to fail. The script stops on
+errors but does not roll back tables already created.
+
+List the tables to confirm they were created:
+
+```bash
+aws dynamodb list-tables --region us-east-1
+```
+
+## Create the practice S3 bucket
+
+From the repository root, run once:
+
+```bash
+bash scripts/setup/create-s3-bucket.sh
+```
+
+Creates `online-store-assets-<account-id>` for file storage and presigned URL
+examples. Use `us-east-1`, matching the tables.
+
+The bucket name, ARN, and region are saved locally in `.env.local` (ignored by
+Git). Load them in each new terminal session from the repository root:
+
+```bash
+source .env.local
+echo "$COURSE_BUCKET"
+```
+
+This file is not loaded automatically. Use `$COURSE_BUCKET` wherever later
+commands need your bucket name; the full creation response does not need saving.
+
+## Add products to the database table
+
+From the repository root, run once:
+```bash
+bash scripts/setup/add-products.sh
+```
+
+## Verify setup 
+
+From the repository root, run once: 
+```bash
+bash scripts/setup/verify-setup.sh
+```
+
+## Cleanup after the plan: 
+
+After the learning plan is complete, or any time you want to stop for a while, deleting these resources stops all 
+charges related to them.
+
+From the repository roo, run once:
+```bash
+bash scripts/setup/cleanup-sh
+```
