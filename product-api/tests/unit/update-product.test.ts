@@ -1,12 +1,9 @@
 import { ConditionalCheckFailedException } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, UpdateCommand } from "@aws-sdk/lib-dynamodb";
-import type { APIGatewayProxyEvent } from "aws-lambda";
+import { putProductEvent } from "../fixtures/api-gateway-events";
 import { handler } from "../../lambda_code/update_product";
 
 const product = { category: "Audio", title: "Headphones", description: "Wired", price: 29.99 };
-const request = (body: string, id?: string, userArn: string | null = null) => ({
-  body, pathParameters: id ? { id } : null, requestContext: { identity: { userArn } },
-}) as APIGatewayProxyEvent;
 
 afterEach(() => jest.restoreAllMocks());
 
@@ -14,7 +11,7 @@ test("updates the addressed item conditionally and returns the full stored recor
   const stored = { ...product, id: "p1", created_by: "original creator", updated_by: "unknown" };
   const send = jest.spyOn(DynamoDBDocumentClient.prototype, "send")
     .mockImplementation(async () => ({ Attributes: stored }));
-  const response = await handler(request(JSON.stringify(product), "p1"));
+  const response = await handler(putProductEvent("p1", product));
   expect(response.statusCode).toBe(200);
   expect(JSON.parse(response.body)).toEqual(stored);
   const command = send.mock.calls[0][0];
@@ -30,7 +27,12 @@ test("updates the addressed item conditionally and returns the full stored recor
 
 test("rejects missing ID, malformed JSON, and partial updates before writing", async () => {
   const send = jest.spyOn(DynamoDBDocumentClient.prototype, "send");
-  for (const event of [request(JSON.stringify(product)), request("{", "p1"), request('{"price":5}', "p1")]) {
+  const valid = putProductEvent("p1", product);
+  for (const event of [
+    { ...valid, pathParameters: null },
+    { ...valid, body: "{" },
+    putProductEvent("p1", { price: 5 }),
+  ]) {
     expect((await handler(event)).statusCode).toBe(400);
   }
   expect(send).not.toHaveBeenCalled();
@@ -40,5 +42,5 @@ test("returns 404 when the conditional update finds no existing item", async () 
   jest.spyOn(DynamoDBDocumentClient.prototype, "send").mockImplementation(async () => {
     throw new ConditionalCheckFailedException({ $metadata: {}, message: "Missing item" });
   });
-  expect((await handler(request(JSON.stringify(product), "absent"))).statusCode).toBe(404);
+  expect((await handler(putProductEvent("absent", product))).statusCode).toBe(404);
 });
