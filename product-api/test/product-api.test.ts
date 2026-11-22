@@ -9,6 +9,23 @@ beforeAll(() => {
   template = Template.fromStack(new ProductApiStack(app, 'TestProductApiStack'));
 });
 
+test('provisions the on-demand product catalog and its category lookup', () => {
+  template.hasResourceProperties('AWS::DynamoDB::Table', {
+    TableName: 'Products',
+    BillingMode: 'PAY_PER_REQUEST',
+    AttributeDefinitions: Match.arrayWith([
+      { AttributeName: 'id', AttributeType: 'S' },
+      { AttributeName: 'category', AttributeType: 'S' },
+    ]),
+    KeySchema: [{ AttributeName: 'id', KeyType: 'HASH' }],
+    GlobalSecondaryIndexes: [{
+      IndexName: 'category-index',
+      KeySchema: [{ AttributeName: 'category', KeyType: 'HASH' }],
+      Projection: { ProjectionType: 'ALL' },
+    }],
+  });
+});
+
 test('packages five Node.js Lambda handlers', () => {
   template.resourceCountIs('AWS::Lambda::Function', 5);
   const functions = template.findResources('AWS::Lambda::Function');
