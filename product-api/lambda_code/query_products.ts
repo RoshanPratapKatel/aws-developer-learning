@@ -1,6 +1,7 @@
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { createResponse } from "./catalog";
 import { listProducts } from "./data/list-products";
+import { errorResponse } from "./error-response";
 
 export async function handler(
   event: APIGatewayProxyEvent,
@@ -10,7 +11,7 @@ export async function handler(
 
     return createResponse(200, products);
   } catch (error) {
-    console.error("Error querying products:", error);
-    return createResponse(500, { error: "Internal server error" });
+    console.error("Error querying products:", event.requestContext.requestId, error);
+    return errorResponse(event, "internal_error");
   }
 }

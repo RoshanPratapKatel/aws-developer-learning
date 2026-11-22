@@ -1,5 +1,5 @@
 import type { APIGatewayProxyEvent } from "aws-lambda";
-import { createResponse } from "./catalog";
+import { errorResponse } from "./error-response";
 import { productInputSchema } from "./schemas/product-input";
 
 export function parseProductBody(event: APIGatewayProxyEvent) {
@@ -9,12 +9,18 @@ export function parseProductBody(event: APIGatewayProxyEvent) {
     input = JSON.parse(event.isBase64Encoded ? Buffer.from(body, "base64").toString("utf8") : body);
   } catch (error) {
     if (!(error instanceof SyntaxError)) throw error;
-    return { success: false, response: createResponse(400, { error: "Invalid JSON" }) } as const;
+    return { success: false, response: errorResponse(event, "invalid_json") } as const;
   }
 
   const result = productInputSchema.safeParse(input);
   if (!result.success) {
-    const response = createResponse(400, { error: "Validation failed", issues: result.error.issues });
+    const details = result.error.issues.map(issue => ({
+      field: issue.path.join(".") || "body",
+      message: issue.code === "unrecognized_keys"
+        ? "Send only title, category, description, and price."
+        : issue.message,
+    }));
+    const response = errorResponse(event, "validation_error", details);
     return { success: false, response } as const;
   }
   return { success: true, data: result.data } as const;
