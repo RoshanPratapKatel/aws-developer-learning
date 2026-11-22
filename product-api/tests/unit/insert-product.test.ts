@@ -47,6 +47,28 @@ test("distinguishes a duplicate key from other database failures", async () => {
     .mockImplementationOnce(async () => { throw new ConditionalCheckFailedException({ $metadata: {}, message: "Duplicate" }); })
     .mockImplementationOnce(async () => { throw new Error("Unexpected failure"); });
   const event = postProductEvent(product);
-  expect((await handler(event)).statusCode).toBe(409);
-  expect((await handler(event)).statusCode).toBe(500);
+  const conflict = await handler(event);
+  expect(conflict.statusCode).toBe(409);
+  expect(JSON.parse(conflict.body).error.type).toBe("product_id_conflict");
+  const failure = await handler(event);
+  expect(failure.statusCode).toBe(500);
+  expect(JSON.parse(failure.body).error.type).toBe("internal_error");
+  expect(failure.body).not.toContain("Unexpected failure");
+});
+
+test("reports field-level feedback with the API Gateway request ID", async () => {
+  const event = postProductEvent({ ...product, price: -5 });
+  event.requestContext.requestId = "validation-request";
+  const response = await handler(event);
+  expect(response.statusCode).toBe(400);
+  expect(JSON.parse(response.body)).toEqual({
+    error: {
+      type: "validation_error",
+      message: "Product data validation failed",
+      request_id: "validation-request",
+      timestamp: expect.stringMatching(/Z$/),
+      details: [{ field: "price", message: expect.any(String) }],
+      suggestions: expect.arrayContaining([expect.any(String)]),
+    },
+  });
 });
