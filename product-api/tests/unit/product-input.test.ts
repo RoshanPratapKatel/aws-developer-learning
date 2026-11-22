@@ -1,4 +1,4 @@
-import { productInputSchema } from "../lambda_code/schemas/product-input";
+import { productInputSchema } from "../../lambda_code/schemas/product-input";
 
 const keyboard = {
   title: "Wireless keyboard",

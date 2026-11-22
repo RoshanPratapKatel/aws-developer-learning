@@ -1,7 +1,7 @@
 import { ConditionalCheckFailedException } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb";
 import type { APIGatewayProxyEvent } from "aws-lambda";
-import { handler } from "../lambda_code/insert_product";
+import { handler } from "../../lambda_code/insert_product";
 
 const product = { title: "Keyboard", category: "Computers", description: "USB keyboard", price: 29.99 };
 const request = (body: string, userArn: string | null = null) =>

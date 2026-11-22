@@ -1,7 +1,7 @@
 import { ConditionalCheckFailedException } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import type { APIGatewayProxyEvent } from "aws-lambda";
-import { handler } from "../lambda_code/update_product";
+import { handler } from "../../lambda_code/update_product";
 
 const product = { category: "Audio", title: "Headphones", description: "Wired", price: 29.99 };
 const request = (body: string, id?: string, userArn: string | null = null) => ({

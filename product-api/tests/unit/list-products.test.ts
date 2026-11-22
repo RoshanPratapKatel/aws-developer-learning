@@ -1,5 +1,5 @@
 import { DynamoDBDocumentClient, QueryCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
-import { listProducts } from "../lambda_code/data/list-products";
+import { listProducts } from "../../lambda_code/data/list-products";
 
 afterEach(() => jest.restoreAllMocks());
 
