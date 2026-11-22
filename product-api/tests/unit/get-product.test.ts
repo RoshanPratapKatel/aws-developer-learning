@@ -1,6 +1,6 @@
 import { DynamoDBDocumentClient, GetCommand } from "@aws-sdk/lib-dynamodb";
 import type { APIGatewayProxyEvent } from "aws-lambda";
-import { handler } from "../lambda_code/get_product";
+import { handler } from "../../lambda_code/get_product";
 
 const request = (id?: string) =>
   ({ pathParameters: id ? { id } : null }) as APIGatewayProxyEvent;

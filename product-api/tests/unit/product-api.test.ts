@@ -1,6 +1,6 @@
 import * as cdk from 'aws-cdk-lib/core';
 import { Match, Template } from 'aws-cdk-lib/assertions';
-import { ProductApiStack } from '../lib/product-api-stack';
+import { ProductApiStack } from '../../lib/product-api-stack';
 
 let template: Template;
 
