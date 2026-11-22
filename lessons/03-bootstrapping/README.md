@@ -104,40 +104,6 @@ Our stack does not configure finite log retention, custom alarms, dashboards,
 or API Gateway access/execution logging. Logs do not automatically expire under
 the current configuration.
 
-## Deployment timeline
-
-The course estimates **2-5 minutes** for a small deployment. Its illustrative
-breakdown is:
-
-| Work | Approximate time |
-|---|---|
-| CloudFormation change set creation | 30 seconds |
-| Lambda deployment | 1-2 minutes |
-| API Gateway configuration | 1-2 minutes |
-| IAM role and policy creation | 30 seconds |
-
-These are not guarantees or sequential steps: CloudFormation creates independent
-resources in parallel and waits for dependencies. Local bundling, asset uploads,
-and AWS service conditions also affect the total time.
-
-## Cost considerations
-
-Free Tier eligibility depends on the account's plan, age, and existing usage.
-Allowances are shared with other usage in the account, not allocated per project.
-
-| Service | Published allowance or qualification |
-|---|---|
-| Lambda Event Functions | 1 million requests and 400,000 GB-seconds of compute per month |
-| API Gateway | The legacy offer includes 1 million REST API calls per month for up to 12 months; new customers from July 15, 2025 use the revised credit-based Free Tier |
-| CloudWatch Logs | Published pricing examples include 5 GB of log ingestion and 5 GB of archived storage allowances; check applicability to your account |
-
-Do not assume the deployment is free. Usage beyond applicable allowances,
-data transfer, and bootstrap S3 artifact storage can incur charges.
-Check your Billing console and the current
-[Lambda](https://aws.amazon.com/lambda/pricing/),
-[API Gateway](https://aws.amazon.com/api-gateway/pricing/), and
-[CloudWatch](https://aws.amazon.com/cloudwatch/pricing/) pricing pages.
-
 
 ## Testing your deployed API
 

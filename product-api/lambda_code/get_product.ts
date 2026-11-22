@@ -1,18 +1,18 @@
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
-import { createResponse, getProduct } from "./catalog";
+import { createResponse } from "./catalog";
+import { getProduct } from "./data/get-product";
 
 export async function handler(
   event: APIGatewayProxyEvent,
 ): Promise<APIGatewayProxyResult> {
   try {
-    // /Products/{id} - id is the product ID to fetch. 
-    const productId = event.pathParameters?.id; 
+    const productId = event.pathParameters?.id;
 
     if (!productId) {
       return createResponse(400, { error: "Product ID required" });
     }
 
-    const product = getProduct(productId);
+    const product = await getProduct(productId);
 
     if (!product) {
       return createResponse(404, { error: "Product not found" });
